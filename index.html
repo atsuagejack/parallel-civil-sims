@@ -1,21 +1,96 @@
 <h1>文明シミュレーター</h1>
 
-人口: <span id="population">0</span><br>
-技術: <span id="technology">0</span><br>
+<div id="auth">
 
-<button onclick="updateGame()">ターン進行</button>
-<button onclick="save()">保存</button>
+<input id="email" placeholder="email">
+<input id="password" type="password" placeholder="password">
+
+<button id="signup">新規登録</button>
+<button id="login">ログイン</button>
+
+</div>
+
+<div id="game" style="display:none">
+
+人口: <span id="population">10</span><br>
+技術: <span id="technology">1</span><br>
+
+<button id="turn">ターン進行</button>
+<button id="save">保存</button>
+
+</div>
 
 <script type="module">
 
-import { updateGame, saveStats } from './game.js'
-import { supabase } from './supabase.js'
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-window.updateGame = updateGame
+const supabase = createClient(
+"SUPABASE_URL",
+"SUPABASE_ANON_KEY"
+)
 
-window.save = async () => {
-  const { data: { user } } = await supabase.auth.getUser()
-  saveStats(user.id)
+let stats = {
+population:10,
+technology:1,
+culture:1,
+faith:1
+}
+
+const email = document.getElementById("email")
+const password = document.getElementById("password")
+
+document.getElementById("signup").onclick = async () => {
+
+await supabase.auth.signUp({
+email: email.value,
+password: password.value
+})
+
+alert("登録完了")
+}
+
+document.getElementById("login").onclick = async () => {
+
+const { data,error } = await supabase.auth.signInWithPassword({
+email: email.value,
+password: password.value
+})
+
+if(data.user){
+
+document.getElementById("auth").style.display="none"
+document.getElementById("game").style.display="block"
+
+}
+
+}
+
+document.getElementById("turn").onclick = () => {
+
+stats.population += Math.floor(Math.random()*5)
+stats.technology += Math.random()>0.7 ? 1 : 0
+
+document.getElementById("population").innerText = stats.population
+document.getElementById("technology").innerText = stats.technology
+
+}
+
+document.getElementById("save").onclick = async () => {
+
+const { data:{user} } = await supabase.auth.getUser()
+
+await supabase
+.from("civilizations")
+.upsert({
+user_id:user.id,
+population:stats.population,
+technology:stats.technology,
+culture:stats.culture,
+faith:stats.faith
+})
+
+alert("保存した")
+
 }
 
 </script>
