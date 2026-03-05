@@ -52,19 +52,17 @@ alert("登録完了")
 document.getElementById("login").onclick = async () => {
 
 const { data, error } = await supabase.auth.signInWithPassword({
-  email: email.value,
-  password: password.value
+email: email.value,
+password: password.value
 })
 
 if (error) {
-  alert(error.message)
-  return
+alert(error.message)
+return
 }
 
-if (data.session) {
-  document.getElementById("auth").style.display = "none"
-  document.getElementById("game").style.display = "block"
-}
+document.getElementById("auth").style.display="none"
+document.getElementById("game").style.display="block"
 
 }
 
@@ -97,5 +95,20 @@ faith:stats.faith
 alert("保存した")
 
 }
+
+async function checkLogin() {
+
+  const { data } = await supabase.auth.getSession()
+
+  if (data.session) {
+
+    document.getElementById("auth").style.display = "none"
+    document.getElementById("game").style.display = "block"
+
+  }
+
+}
+
+checkLogin()
 
 </script>
