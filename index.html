@@ -64,6 +64,8 @@ return
 document.getElementById("auth").style.display="none"
 document.getElementById("game").style.display="block"
 
+await loadStats()
+
 }
 
 document.getElementById("turn").onclick = () => {
@@ -93,6 +95,27 @@ faith:stats.faith
 })
 
 alert("保存した")
+
+}
+
+async function loadStats(){
+
+const { data:{user} } = await supabase.auth.getUser()
+
+const { data } = await supabase
+.from("civilizations")
+.select("*")
+.eq("user_id", user.id)
+.single()
+
+if(data){
+
+stats.population = data.population
+stats.technology = data.technology
+stats.culture = data.culture
+stats.faith = data.faith
+
+}
 
 }
 
