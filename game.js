@@ -1,109 +1,41 @@
-const SUPABASE_URL = "https://khfhzsrzyzyojacdvrfe.supabase.co"
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoZmh6c3J6eXp5b2phY2R2cmZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzgxNjYsImV4cCI6MjA4ODMxNDE2Nn0.ZBrIyT2Tv8dyzkBe9xyhnXB7EIW23-bQQRbS8YlzPag"
+import { supabase } from './supabase.js'
 
-const supabase = supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-)
-
-async function signUp(){
-
-const email = document.getElementById("email").value
-const password = document.getElementById("password").value
-
-await supabase.auth.signUp({
-email,
-password
-})
-
-alert("登録メール確認してね")
-
+let stats = {
+  population: 10,
+  technology: 1,
+  culture: 1,
+  faith: 1
 }
 
-async function login(){
+export function updateGame() {
 
-const email = document.getElementById("email").value
-const password = document.getElementById("password").value
+  stats.population += Math.floor(Math.random() * 3)
+  stats.technology += Math.random() > 0.7 ? 1 : 0
 
-const {data,error} = await supabase.auth.signInWithPassword({
-
-email,
-password
-
-})
-
-if(error){
-
-alert(error.message)
-
-}else{
-
-alert("ログイン成功")
-createCivilization()
-
+  render()
 }
 
+function render() {
+
+  document.getElementById("population").innerText = stats.population
+  document.getElementById("technology").innerText = stats.technology
 }
 
+export async function saveStats(userId) {
 
-async function createCivilization(){
+  const { data, error } = await supabase
+    .from('civilizations')
+    .upsert({
+      user_id: userId,
+      population: stats.population,
+      technology: stats.technology,
+      culture: stats.culture,
+      faith: stats.faith
+    })
 
-const {data:userData} = await supabase.auth.getUser()
-
-const user = userData.user
-
-await supabase.from("civilizations").insert({
-
-user_id:user.id,
-name:"My Civilization"
-
-})
-
-}
-
-
-async function loadCivilization(){
-
-const {data:userData} = await supabase.auth.getUser()
-
-const user = userData.user
-
-const {data} = await supabase
-
-.from("civilizations")
-.select("*")
-.eq("user_id",user.id)
-.single()
-
-stats.order = data.order_stat
-stats.freedom = data.freedom_stat
-stats.prosperity = data.prosperity_stat
-stats.tech = data.tech_stat
-
-updateUI()
-
+  if (error) {
+    console.error(error)
+  } else {
+    console.log("saved", data)
   }
-
-async function saveStats(){
-
-const {data:userData} = await supabase.auth.getUser()
-
-const user=userData.user
-
-await supabase
-
-.from("civilizations")
-
-.update({
-
-order_stat:stats.order,
-freedom_stat:stats.freedom,
-prosperity_stat:stats.prosperity,
-tech_stat:stats.tech
-
-})
-
-.eq("user_id",user.id)
-
-  }
-
+}
