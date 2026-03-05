@@ -99,7 +99,7 @@ async function loadStats(){
 
 const { data:{user} } = await supabase.auth.getUser()
 
-const { data } = await supabase
+const { data, error } = await supabase
 .from("civilizations")
 .select("*")
 .eq("user_id", user.id)
@@ -112,8 +112,20 @@ stats.technology = data.technology
 stats.culture = data.culture
 stats.faith = data.faith
 
+}else{
+
+await supabase.from("civilizations").insert({
+user_id:user.id,
+population:stats.population,
+technology:stats.technology,
+culture:stats.culture,
+faith:stats.faith
+})
+
 }
 
+document.getElementById("population").innerText = stats.population
+document.getElementById("technology").innerText = stats.technology
 }
 
 async function checkLogin() {
