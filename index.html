@@ -114,13 +114,16 @@ stats.faith = data.faith
 
 }else{
 
-await supabase.from("civilizations").insert({
+const { data, error } = await supabase.from("civilizations").insert({
 user_id:user.id,
 population:stats.population,
 technology:stats.technology,
 culture:stats.culture,
 faith:stats.faith
 })
+
+console.log("DATA", data)
+console.log("ERROR", error)
 
 }
 
