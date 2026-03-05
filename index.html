@@ -69,9 +69,7 @@ await loadStats()
 
 document.getElementById("turn").onclick = () => {
 
-stats.population += Math.floor(Mat
-                               
-                               h.random()*5)
+stats.population += Math.floor(Math.random()*5)
 stats.technology += Math.random()>0.7 ? 1 : 0
 
 document.getElementById("population").innerText = stats.population
